@@ -9,7 +9,7 @@ namespace enumerate {
 		return function_name;
 	}
 	template <auto Target>
-	consteval auto getEnumName() {
+	consteval auto get_enum_name() {
 #define toString(code) #code
 		const std::string_view nullptr_string(toString(nullptr));
 		const auto nullptr_func = receieve_this_function_name<nullptr>();
