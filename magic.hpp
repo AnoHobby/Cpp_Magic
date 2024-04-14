@@ -56,9 +56,9 @@ namespace magic {
 	inline constexpr auto make_array(auto&&... args) {
 		return std::move(std::array<T, sizeof...(args)>{std::forward<decltype(args)>(args)...});
 	}
-	//inline constexpr auto auto_make_array(auto&&... args) {
-	//	return std::move(std::array<, sizeof...(args)>{std::forward<decltype(args)>(args)...});
-	//}
+	inline constexpr auto auto_make_array(auto&&... args) {
+		return std::move(std::array<decltype(std::initializer_list{std::forward<decltype(args)>(args)...})::value_type, sizeof...(args) > {std::forward<decltype(args)>(args)...});
+	}
 };
 
 #endif
