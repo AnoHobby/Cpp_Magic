@@ -40,6 +40,18 @@ namespace magic {
 	auto visit_tuple(std::tuple<T...>&& tuple, const std::size_t index, const F function) {
 		visit_tuple(tuple, index, function, std::make_index_sequence<sizeof...(T)>());
 	}
+	template <class F, class... T>
+	auto loop_tuple(std::tuple<T...>& tuple, const F function) {
+		std::apply([&](auto&&... t) {
+			(function(std::forward<decltype(t)>(t)), ...);
+			}, tuple);
+	}
+	template <class F, class... T>
+	auto loop_tuple(std::tuple<T...>&& tuple, const F function) {
+		std::apply([&](auto&&... t) {
+			(function(std::forward<decltype(t)>(t)), ...);
+			}, tuple);
+	}
 	template <class T>
 	inline constexpr auto make_array(auto&&... args) {
 		return std::move(std::array<T, sizeof...(args)>{std::forward<decltype(args)>(args)...});
