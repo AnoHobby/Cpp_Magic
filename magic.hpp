@@ -7,6 +7,7 @@ import <tuple>;
 import <functional>;
 import <iterator>;
 import <array>;
+import <type_traits>;
 namespace magic {
 	template <auto Target>
 	consteval auto receieve_this_function_name() {
@@ -25,29 +26,17 @@ namespace magic {
 		return target;
 #undef toString
 	}
-	template <class F, class... T, std::size_t... I>
-	auto visit_tuple(std::tuple<T...>& tuple, const std::size_t& index, const F& function, std::index_sequence<I...>) {
+	template <auto... I>
+	auto visit_tuple(auto&& tuple, const std::size_t& index, const auto&& function, std::index_sequence<I...>) {
 		std::function<void()> functions[] = {
 			([&] {function(std::get<I>(tuple)); })...
 		};
 		functions[index]();
 	}
-	template <class F, class... T>
-	auto visit_tuple(std::tuple<T...>& tuple, const std::size_t index, const F function) {
-		visit_tuple(tuple, index, function, std::make_index_sequence<sizeof...(T)>());
+	auto visit_tuple(auto&& tuple, const std::size_t index, const auto&& function) {
+		visit_tuple(std::forward<decltype(tuple)>(tuple), index, std::forward<decltype(function)>(function), std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<decltype(tuple)> > >());
 	}
-	template <class F, class... T>
-	auto visit_tuple(std::tuple<T...>&& tuple, const std::size_t index, const F function) {
-		visit_tuple(tuple, index, function, std::make_index_sequence<sizeof...(T)>());
-	}
-	template <class F, class... T>
-	auto loop_tuple(std::tuple<T...>& tuple, const F function) {
-		std::apply([&](auto&&... t) {
-			(function(std::forward<decltype(t)>(t)), ...);
-			}, tuple);
-	}
-	template <class F, class... T>
-	auto loop_tuple(std::tuple<T...>&& tuple, const F function) {
+	auto loop_tuple(auto&& tuple, const auto&& function) {
 		std::apply([&](auto&&... t) {
 			(function(std::forward<decltype(t)>(t)), ...);
 			}, tuple);
