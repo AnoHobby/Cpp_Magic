@@ -26,7 +26,7 @@ namespace magic {
 		return target;
 	}
 	template <auto... I>
-	auto visit_tuple(auto&& tuple, const std::size_t& index, auto&& function, std::index_sequence<I...>) {
+	auto visit_tuple(auto&& tuple, const std::size_t& index,const auto&& function, std::index_sequence<I...>) {
 		void (*functions[])(decltype(function), decltype(tuple)) = {
 			([](const auto&& function,auto&& tuple) {function(std::get<I>(tuple)); })...
 		};
