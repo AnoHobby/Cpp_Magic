@@ -4,7 +4,6 @@
 import <string_view>;
 import <source_location>;
 import <tuple>;
-import <functional>;
 import <iterator>;
 import <array>;
 import <type_traits>;
@@ -27,11 +26,11 @@ namespace magic {
 		return target;
 	}
 	template <auto... I>
-	auto visit_tuple(auto&& tuple, const std::size_t& index, const auto&& function, std::index_sequence<I...>) {
-		std::function<void()> functions[] = {
-			([&] {function(std::get<I>(tuple)); })...
+	auto visit_tuple(auto&& tuple, const std::size_t& index, auto&& function, std::index_sequence<I...>) {
+		void (*functions[])(decltype(function), decltype(tuple)) = {
+			([](const auto&& function,auto&& tuple) {function(std::get<I>(tuple)); })...
 		};
-		functions[index]();
+		functions[index](std::forward<decltype(function)>(function), std::forward<decltype(tuple)>(tuple));
 	}
 	auto visit_tuple(auto&& tuple, const std::size_t index, const auto&& function) {
 		visit_tuple(std::forward<decltype(tuple)>(tuple), index, std::forward<decltype(function)>(function), std::make_index_sequence<std::tuple_size_v<std::remove_reference_t<decltype(tuple)> > >());
