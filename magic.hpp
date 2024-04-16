@@ -14,7 +14,7 @@ namespace magic {
 		return function_name;
 	}
 	template <auto Target>
-	consteval auto get_enum_name() {
+	consteval auto get_value_name() {
 #define TO_STRING(code) #code
 		constexpr std::string_view nullptr_string(TO_STRING(nullptr));
 #undef TO_STRING
