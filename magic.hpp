@@ -1,14 +1,59 @@
 #ifndef INCLUDE_GUARD_MAGIC_HPP
 #define INCLUDE_GUARD_MAGIC_HPP
 
+#if defined(__INTELLISENSE__)
+#include <string_view>;
+#include <source_location>;
+#include <tuple>;
+#include <iterator>;
+#include <array>;
+#include <type_traits>;
+
+#else
 import <string_view>;
 import <source_location>;
 import <tuple>;
 import <iterator>;
 import <array>;
 import <type_traits>;
+#endif
+
+import <string_view>;
+import <source_location>;
+import <tuple>;
+import <iterator>;
+import <array>;
+import <type_traits>;
+#define magic_make_string(str) magic::String<char,str.size()>(str)
 namespace magic {
+	template <class T, std::size_t N>
+	class String {
+	private:
+		T data[N + 1];
+	public:
+		constexpr String(auto str) {
+			for (auto i = 0; i < N; ++i) {
+				data[i] = str[i];
+			}
+			data[N] = '\0';
+		}
+		constexpr auto get()const {
+			return data;
+		}
+		constexpr auto operator[](const std::size_t index)const {
+			return data[index];
+		}
+		template <class T>
+		constexpr auto cast()const {
+			return String<T, N>(data);
+		}
+	};
 	template <auto Target>
+	consteval auto receieve_this_function_name() {
+		std::string_view function_name(std::source_location::current().function_name());
+		return function_name;
+	}
+	template <class Target>
 	consteval auto receieve_this_function_name() {
 		std::string_view function_name(std::source_location::current().function_name());
 		return function_name;
@@ -25,8 +70,9 @@ namespace magic {
 		target.remove_suffix(nullptr_func.size() - nullptr_pos - 1);
 		return target;
 	}
+
 	template <auto... I>
-	auto visit_tuple(auto&& tuple, const std::size_t& index,const auto&& function, std::index_sequence<I...>) {
+	auto visit_tuple(auto&& tuple, const std::size_t& index, const auto&& function, std::index_sequence<I...>) {
 		void (*functions[])(decltype(function), decltype(tuple)) = {
 			([](const auto&& function,auto&& tuple) {function(std::get<I>(tuple)); })...
 		};
@@ -45,7 +91,7 @@ namespace magic {
 		return std::move(std::array<T, sizeof...(args)>{std::forward<decltype(args)>(args)...});
 	}
 	inline constexpr auto auto_make_array(auto&&... args) {
-		return std::move(std::array<decltype(std::initializer_list{std::forward<decltype(args)>(args)...})::value_type, sizeof...(args) > {std::forward<decltype(args)>(args)...});
+		return std::move(std::array<decltype(std::initializer_list{ std::forward<decltype(args)>(args)... })::value_type, sizeof...(args) > {std::forward<decltype(args)>(args)...});
 	}
 	template <class... T>
 	struct Overload :T...{
