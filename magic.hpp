@@ -70,7 +70,15 @@ namespace magic {
 		target.remove_suffix(nullptr_func.size() - nullptr_pos - 1);
 		return target;
 	}
-
+	template <auto Enum_Value>
+	consteval auto get_enum_value_name() {
+		auto name = get_value_name<Enum_Value>();
+		const auto scope=name.find_last_of(":");
+		if (scope != std::string_view::npos) {
+			name.remove_prefix(scope+1);//for msvc.this is uncool.
+		}
+		return name;
+	}
 	template <auto... I>
 	auto visit_tuple(auto&& tuple, const std::size_t& index, const auto&& function, std::index_sequence<I...>) {
 		void (*functions[])(decltype(function), decltype(tuple)) = {
