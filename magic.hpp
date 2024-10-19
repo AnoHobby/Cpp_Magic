@@ -24,28 +24,22 @@ import <tuple>;
 import <iterator>;
 import <array>;
 import <type_traits>;
-#define magic_make_string(str) magic::String<char,str.size()>(str)
 namespace magic {
-	template <class T, std::size_t N>
+	template <class T,int Size>
 	class String {
 	private:
-		T data[N + 1];
+		constexpr auto init(const auto* str) {
+			for (int i = 0; i < Size; i++) buffer[i] = str[i];
+			buffer[Size] = '\0';
+		}
 	public:
-		constexpr String(auto str) {
-			for (auto i = 0; i < N; ++i) {
-				data[i] = str[i];
-			}
-			data[N] = '\0';
+		T buffer[Size + 1];
+		constexpr String(const T(&str)[Size]){
+			init(str);
 		}
-		constexpr auto get()const {
-			return data;
-		}
-		constexpr auto operator[](const std::size_t index)const {
-			return data[index];
-		}
-		template <class T>
-		constexpr auto cast()const {
-			return String<T, N>(data);
+		template <class Pointer>requires std::is_pointer<Pointer>::value
+		constexpr String(const Pointer str) {
+			init(str);
 		}
 	};
 	template <auto Target>
